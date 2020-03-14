@@ -42,6 +42,27 @@ func main() {
 		ctx.JSON(http.StatusOK, gin.H{"result": fmt.Sprint(response.Result)})
 	})
 
+	g.GET("/mul/:a/:b", func(ctx *gin.Context) {
+		a, err := strconv.ParseInt(ctx.Param("a"), 10, 64)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Parameter A"})
+			return
+		}
+
+		b, err := strconv.ParseInt(ctx.Param("b"), 10, 64)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Parameter B"})
+			return
+		}
+
+		req := &proto.Request{A: a, B: b}
+		response, err := client.Multiply(ctx, req)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Server error: " + err.Error()})
+		}
+		ctx.JSON(http.StatusOK, gin.H{"result": fmt.Sprint(response.Result)})
+	})
+
 	if err := g.Run(":8080"); err != nil {
 		log.Fatalf("Not able run the server: %v", err)
 	}
